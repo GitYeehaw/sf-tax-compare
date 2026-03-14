@@ -1,1 +1,1 @@
-https://github.com/GitYeehaw/sf-tax-compare
+https://gityeehaw.github.io/sf-tax-compare/
