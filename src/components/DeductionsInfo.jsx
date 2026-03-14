@@ -21,13 +21,13 @@ export default function DeductionsInfo({ results }) {
       name: '50% Self-Employment Tax Deduction',
       getAmount: (r) => r.seTaxDeduction > 0 ? formatCurrency(r.seTaxDeduction) : null,
       description: 'Half of SE tax is deductible from gross income to calculate AGI. Reduces both federal and state taxable income.',
-      applies: 'Sole Prop & LLC only',
+      applies: 'Sole Prop & LLC only (not W-2)',
     },
     {
       name: 'Qualified Business Income (QBI) Deduction',
       getAmount: (r) => r.qbiDeduction > 0 ? formatCurrency(r.qbiDeduction) : null,
-      description: '20% of qualified business income. Made permanent by OBBBA. Phases out for single filers between $201,775–$276,775 (2026). $400 minimum if QBI exceeds $1,000. Applies to federal tax only (not California).',
-      applies: 'All entities (distribution for S-Corp)',
+      description: '20% of qualified business income. Made permanent by OBBBA. Phases out for single filers between $201,775–$276,775 (2026). $400 minimum if QBI exceeds $1,000. Applies to federal tax only (not California). Not available to W-2 employees.',
+      applies: 'Self-employed only (distribution for S-Corp, not W-2)',
     },
   ];
 

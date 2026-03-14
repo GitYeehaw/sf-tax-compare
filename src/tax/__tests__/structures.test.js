@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { calculateSoleProprietorship, calculateLLC, calculateSCorp } from '../structures.js';
+import { calculateSoleProprietorship, calculateLLC, calculateSCorp, calculateW2Employee } from '../structures.js';
 
 describe('calculateSoleProprietorship', () => {
   it('returns correct structure for $100K income', () => {
@@ -90,5 +90,63 @@ describe('calculateSCorp', () => {
   it('clamps salary when it would exceed gross - admin', () => {
     const result = calculateSCorp(3000, 90, 2000);
     expect(result.salary).toBeLessThanOrEqual(result.grossIncome - result.adminCosts);
+  });
+});
+
+describe('calculateW2Employee', () => {
+  it('returns correct structure for $100K income', () => {
+    const result = calculateW2Employee(100000);
+    expect(result.label).toBe('W-2 Employee');
+    expect(result.grossIncome).toBe(100000);
+    expect(result.agi).toBe(100000);
+    expect(result.federalIncomeTax).toBeGreaterThan(0);
+    expect(result.californiaTotal).toBeGreaterThan(0);
+    expect(result.totalTax).toBeGreaterThan(0);
+    expect(result.takeHomePay).toBeLessThan(100000);
+    expect(result.takeHomePay).toBeGreaterThan(0);
+  });
+
+  it('has employee FICA but no self-employment tax', () => {
+    const result = calculateW2Employee(100000);
+    expect(result.selfEmploymentTax).toBe(0);
+    expect(result.payrollTax).toBeGreaterThan(0);
+    // Employee SS: 6.2% of $100K = $6,200, Medicare: 1.45% of $100K = $1,450
+    expect(result.payrollTax).toBeCloseTo(6200 + 1450, 0);
+  });
+
+  it('has no QBI deduction', () => {
+    const result = calculateW2Employee(200000);
+    expect(result.qbiDeduction).toBe(0);
+  });
+
+  it('has no SE tax deduction', () => {
+    const result = calculateW2Employee(200000);
+    expect(result.seTaxDeduction).toBe(0);
+  });
+
+  it('has no quarterly payments', () => {
+    const result = calculateW2Employee(100000);
+    expect(result.quarterlyPayments).toBeNull();
+  });
+
+  it('pays less FICA than sole prop SE tax', () => {
+    const result = calculateW2Employee(200000);
+    const soleProp = calculateSoleProprietorship(200000);
+    // Employee-only FICA is roughly half of full SE tax
+    expect(result.payrollTax).toBeLessThan(soleProp.selfEmploymentTax);
+  });
+
+  it('handles zero income', () => {
+    const result = calculateW2Employee(0);
+    expect(result.totalTax).toBe(0);
+    expect(result.takeHomePay).toBe(0);
+  });
+
+  it('applies additional Medicare tax over $200K', () => {
+    const result = calculateW2Employee(300000);
+    // Additional Medicare: 0.9% on $100K over threshold = $900
+    const expectedAdditionalMedicare = (300000 - 200000) * 0.009;
+    const baseFica = Math.min(300000, 184500) * 0.062 + 300000 * 0.0145;
+    expect(result.payrollTax).toBeCloseTo(baseFica + expectedAdditionalMedicare, 0);
   });
 });

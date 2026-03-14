@@ -29,6 +29,13 @@ export default function QuarterlyPayments({ results }) {
                 <td className="quarter-label">{q.quarter}</td>
                 <td className="quarter-date">{q.dueDate}</td>
                 {results.map((r) => {
+                  if (!r.quarterlyPayments) {
+                    return (
+                      <td key={r.label} className="quarter-amount">
+                        <div className="quarter-withheld">Withheld by employer</div>
+                      </td>
+                    );
+                  }
                   const payment = r.quarterlyPayments[qi];
                   return (
                     <td key={r.label} className="quarter-amount">
@@ -45,6 +52,13 @@ export default function QuarterlyPayments({ results }) {
             <tr className="annual-total-row">
               <td colSpan="2" className="row-label">Annual Total</td>
               {results.map((r) => {
+                if (!r.quarterlyPayments) {
+                  return (
+                    <td key={r.label} className="quarter-amount">
+                      <div className="quarter-withheld">Withheld by employer</div>
+                    </td>
+                  );
+                }
                 const annualTotal = r.quarterlyPayments.reduce((sum, q) => sum + q.total, 0);
                 return (
                   <td key={r.label} className="quarter-amount">

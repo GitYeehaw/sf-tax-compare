@@ -13,7 +13,7 @@ describe('calculateAll', () => {
     expect(result.grossIncome).toBe(312000);
   });
 
-  it('returns 3 entity results', () => {
+  it('returns 4 entity results', () => {
     const result = calculateAll({
       hourlyRate: 150,
       hoursPerWeek: 40,
@@ -21,10 +21,11 @@ describe('calculateAll', () => {
       sCorpSalaryPercent: 60,
       sCorpAdminCost: 2000,
     });
-    expect(result.results).toHaveLength(3);
+    expect(result.results).toHaveLength(4);
     expect(result.results[0].label).toBe('Sole Proprietorship');
     expect(result.results[1].label).toBe('LLC (Single-Member)');
     expect(result.results[2].label).toBe('S-Corporation');
+    expect(result.results[3].label).toBe('W-2 Employee');
   });
 
   it('sole prop and LLC have identical totals', () => {

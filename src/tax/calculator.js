@@ -1,4 +1,4 @@
-import { calculateSoleProprietorship, calculateLLC, calculateSCorp } from './structures.js';
+import { calculateSoleProprietorship, calculateLLC, calculateSCorp, calculateW2Employee } from './structures.js';
 
 export function calculateAll({ hourlyRate, hoursPerWeek, weeksPerYear, sCorpSalaryPercent, sCorpAdminCost }) {
   const grossIncome = hourlyRate * hoursPerWeek * weeksPerYear;
@@ -13,6 +13,7 @@ export function calculateAll({ hourlyRate, hoursPerWeek, weeksPerYear, sCorpSala
       calculateSoleProprietorship(grossIncome),
       calculateLLC(grossIncome),
       calculateSCorp(grossIncome, sCorpSalaryPercent, sCorpAdminCost),
+      calculateW2Employee(grossIncome),
     ],
   };
 }

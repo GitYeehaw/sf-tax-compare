@@ -57,6 +57,46 @@ export function calculateLLC(grossIncome) {
   return { ...result, label: 'LLC (Single-Member)' };
 }
 
+export function calculateW2Employee(grossIncome) {
+  const payroll = calculatePayrollTax(grossIncome);
+
+  // W-2 employee: AGI = gross income (no SE deduction)
+  const agi = grossIncome;
+
+  const federalTaxableIncome = Math.max(0, agi - FEDERAL_STANDARD_DEDUCTION);
+  const federalIncomeTax = calculateFederalIncomeTax(federalTaxableIncome);
+
+  const caTaxableIncome = Math.max(0, agi - CA_STANDARD_DEDUCTION);
+  const caTax = calculateCaliforniaTax(caTaxableIncome);
+
+  // Employee pays only their half of FICA + income taxes
+  const totalTax = payroll.employeeTotal + federalIncomeTax + caTax.total;
+  const takeHomePay = grossIncome - totalTax;
+
+  return {
+    label: 'W-2 Employee',
+    grossIncome,
+    agi,
+    selfEmploymentTax: 0,
+    seTaxDeduction: 0,
+    qbiDeduction: 0,
+    payrollTax: payroll.employeeTotal,
+    federalStandardDeduction: FEDERAL_STANDARD_DEDUCTION,
+    federalTaxableIncome,
+    federalIncomeTax,
+    caStandardDeduction: CA_STANDARD_DEDUCTION,
+    caTaxableIncome,
+    californiaIncomeTax: caTax.baseTax,
+    californiaMentalHealthSurcharge: caTax.mentalHealthSurcharge,
+    californiaTotal: caTax.total,
+    adminCosts: 0,
+    totalTax,
+    takeHomePay,
+    effectiveRate: grossIncome > 0 ? totalTax / grossIncome : 0,
+    quarterlyPayments: null,
+  };
+}
+
 export function calculateSCorp(grossIncome, salaryPercent = 60, adminCost = 2000) {
   const salary = Math.min(grossIncome * (salaryPercent / 100), Math.max(0, grossIncome - adminCost));
 
