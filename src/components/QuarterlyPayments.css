@@ -1,0 +1,73 @@
+.quarterly-wrapper {
+  background: var(--color-card-bg);
+  border-radius: var(--border-radius);
+  padding: 1.5rem;
+  box-shadow: var(--shadow);
+}
+
+.quarterly-subtitle {
+  font-size: 0.8125rem;
+  color: var(--color-text-muted);
+  margin: -0.5rem 0 1rem;
+}
+
+.quarterly-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+
+.quarterly-table thead th {
+  text-align: right;
+  padding: 0.625rem 1rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  border-bottom: 2px solid var(--color-border);
+  white-space: nowrap;
+}
+
+.quarterly-table thead th:first-child,
+.quarterly-table thead th:nth-child(2) {
+  text-align: left;
+}
+
+.quarterly-table tbody td {
+  padding: 0.625rem 1rem;
+  border-bottom: 1px solid var(--color-border-light);
+}
+
+.quarter-label {
+  font-weight: 600;
+  color: var(--color-primary);
+}
+
+.quarter-date {
+  color: var(--color-text-muted);
+  white-space: nowrap;
+}
+
+.quarter-amount {
+  text-align: right;
+}
+
+.quarter-total {
+  font-weight: 600;
+  color: var(--color-text);
+  font-variant-numeric: tabular-nums;
+}
+
+.quarter-breakdown {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: flex-end;
+  font-size: 0.6875rem;
+  color: var(--color-text-muted);
+  margin-top: 0.125rem;
+}
+
+.annual-total-row td {
+  font-weight: 700;
+  border-top: 2px solid var(--color-border);
+  padding-top: 0.75rem;
+}
