@@ -96,3 +96,18 @@
 .obbba-list strong {
   color: var(--color-text);
 }
+
+.obbba-source {
+  font-size: 0.6875rem;
+  color: var(--color-text-muted);
+  margin: 0 0 0.5rem;
+}
+
+.obbba-source a {
+  color: var(--color-primary);
+  text-decoration: none;
+}
+
+.obbba-source a:hover {
+  text-decoration: underline;
+}

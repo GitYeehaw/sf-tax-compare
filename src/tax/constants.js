@@ -1,5 +1,6 @@
 // 2026 Tax Data — sourced from IRS.gov and CA FTB
-// Includes One Big Beautiful Bill Act provisions
+// Includes One Big Beautiful Bill Act (P.L. 119-21) provisions
+// References: IRS Pub 946, FS-2025-03, Notice 2026-11
 
 export const FEDERAL_BRACKETS = [
   { min: 0, max: 12400, rate: 0.10 },
@@ -41,6 +42,13 @@ export const QBI_PHASE_OUT_START = 201775;
 export const QBI_PHASE_OUT_RANGE = 75000; // Expanded by OBBBA from $50K to $75K for 2026
 export const QBI_MINIMUM_DEDUCTION = 400; // New OBBBA minimum if QBI >= $1,000
 export const QBI_MINIMUM_THRESHOLD = 1000; // Must have at least $1K QBI to get minimum
+
+// Section 179 — OBBBA raised base to $2.5M; inflation-adjusted for 2026 per IRS Pub 946
+export const SECTION_179_LIMIT = 2560000;
+export const SECTION_179_PHASE_OUT_START = 4090000;
+
+// 100% Bonus Depreciation — made permanent by OBBBA (Section 70307)
+// Property acquired after 1/19/2025 qualifies for full first-year deduction
 
 // Estimated quarterly payment due dates for tax year 2026
 export const QUARTERLY_DUE_DATES = [

@@ -6,6 +6,12 @@ export default function DeductionsInfo({ results }) {
 
   const deductions = [
     {
+      name: 'Section 179 Deduction',
+      getAmount: (r) => r.section179 > 0 ? formatCurrency(r.section179) : null,
+      description: 'Immediate expensing of qualifying business equipment and software. OBBBA raised limit to $2.5M (inflation-adjusted to $2,560,000 for 2026). Phase-out begins at $4,090,000 in total equipment placed in service. Reduces business income before SE tax and all other calculations.',
+      applies: 'Self-employed only (Sole Prop, LLC, S-Corp — not W-2)',
+    },
+    {
       name: 'Federal Standard Deduction',
       amount: '$16,100',
       description: 'Applied to AGI before computing federal income tax (2026, per OBBBA).',
@@ -63,12 +69,17 @@ export default function DeductionsInfo({ results }) {
       </div>
 
       <div className="obbba-note">
-        <h3 className="obbba-title">Other OBBBA Provisions (2025–2028)</h3>
+        <h3 className="obbba-title">OBBBA Provisions (P.L. 119-21, 2025–2028)</h3>
+        <p className="obbba-source">Source: <a href="https://www.irs.gov/newsroom/one-big-beautiful-bill-act-tax-deductions-for-working-americans-and-seniors" target="_blank" rel="noopener noreferrer">IRS FS-2025-03</a></p>
         <ul className="obbba-list">
-          <li><strong>Senior Deduction:</strong> Additional $6,000 for taxpayers age 65+ (phases out at higher income)</li>
-          <li><strong>No Tax on Tips:</strong> Up to $25,000 deduction for qualifying tip workers (phases out above $150K MAGI)</li>
-          <li><strong>No Tax on Overtime:</strong> Up to $12,500 deduction for qualified overtime pay (phases out above $150K MAGI)</li>
-          <li><strong>Car Loan Interest:</strong> Up to $10,000 deduction for personal vehicle loans</li>
+          <li><strong>100% Bonus Depreciation:</strong> Permanent full first-year deduction for qualifying business property acquired after 1/19/2025 (Section 70307)</li>
+          <li><strong>Section 179 Increase:</strong> Limit raised to $2.5M base ($2,560,000 inflation-adjusted for 2026); phase-out at $4,090,000</li>
+          <li><strong>QBI Deduction:</strong> Made permanent with expanded phase-out range ($75K) and $400 minimum</li>
+          <li><strong>Senior Deduction:</strong> Additional $6,000 per individual age 65+ ($12,000 joint); phases out above $75K MAGI ($150K joint)</li>
+          <li><strong>No Tax on Tips:</strong> Up to $25,000 deduction for qualifying tip workers; phases out above $150K MAGI ($300K joint). Self-employed in SSTB ineligible</li>
+          <li><strong>No Tax on Overtime:</strong> Up to $12,500 deduction ($25,000 joint) for qualified FLSA overtime; phases out above $150K MAGI ($300K joint)</li>
+          <li><strong>Car Loan Interest:</strong> Up to $10,000 deduction for new US-assembled vehicles; phases out above $100K MAGI ($200K joint)</li>
+          <li><strong>SALT Cap:</strong> Increased to $40,000 ($20,000 MFS) through 2029 for itemizers</li>
         </ul>
       </div>
     </div>

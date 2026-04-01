@@ -1,17 +1,26 @@
-import { FEDERAL_STANDARD_DEDUCTION, CA_STANDARD_DEDUCTION } from './constants.js';
+import { FEDERAL_STANDARD_DEDUCTION, CA_STANDARD_DEDUCTION, SECTION_179_LIMIT } from './constants.js';
 import { calculateFederalIncomeTax } from './federalTax.js';
 import { calculateCaliforniaTax } from './californiaTax.js';
 import { calculateSelfEmploymentTax, calculatePayrollTax } from './selfEmploymentTax.js';
 import { calculateQBIDeduction } from './qbiDeduction.js';
 import { calculateQuarterlyPayments } from './quarterlyPayments.js';
 
-export function calculateSoleProprietorship(grossIncome) {
-  const seTax = calculateSelfEmploymentTax(grossIncome);
+function applySection179(grossIncome, section179Input) {
+  // Section 179 can't exceed the limit or create a loss
+  const capped = Math.min(section179Input, SECTION_179_LIMIT, grossIncome);
+  return Math.max(0, capped);
+}
 
-  const agi = grossIncome - seTax.deductibleHalf;
+export function calculateSoleProprietorship(grossIncome, section179Input = 0) {
+  const section179 = applySection179(grossIncome, section179Input);
+  const businessIncome = grossIncome - section179;
+
+  const seTax = calculateSelfEmploymentTax(businessIncome);
+
+  const agi = businessIncome - seTax.deductibleHalf;
 
   const federalTaxableBeforeQBI = Math.max(0, agi - FEDERAL_STANDARD_DEDUCTION);
-  const qbiDeduction = calculateQBIDeduction(grossIncome, federalTaxableBeforeQBI);
+  const qbiDeduction = calculateQBIDeduction(businessIncome, federalTaxableBeforeQBI);
   const federalTaxableIncome = Math.max(0, federalTaxableBeforeQBI - qbiDeduction);
 
   const federalIncomeTax = calculateFederalIncomeTax(federalTaxableIncome);
@@ -20,7 +29,7 @@ export function calculateSoleProprietorship(grossIncome) {
   const caTax = calculateCaliforniaTax(caTaxableIncome);
 
   const totalTax = seTax.total + federalIncomeTax + caTax.total;
-  const takeHomePay = grossIncome - totalTax;
+  const takeHomePay = grossIncome - section179 - totalTax;
 
   const quarterlyPayments = calculateQuarterlyPayments(
     federalIncomeTax,
@@ -31,6 +40,8 @@ export function calculateSoleProprietorship(grossIncome) {
   return {
     label: 'Sole Proprietorship',
     grossIncome,
+    section179,
+    businessIncome,
     agi,
     selfEmploymentTax: seTax.total,
     seTaxDeduction: seTax.deductibleHalf,
@@ -52,8 +63,8 @@ export function calculateSoleProprietorship(grossIncome) {
   };
 }
 
-export function calculateLLC(grossIncome) {
-  const result = calculateSoleProprietorship(grossIncome);
+export function calculateLLC(grossIncome, section179Input = 0) {
+  const result = calculateSoleProprietorship(grossIncome, section179Input);
   return { ...result, label: 'LLC (Single-Member)' };
 }
 
@@ -76,6 +87,8 @@ export function calculateW2Employee(grossIncome) {
   return {
     label: 'W-2 Employee',
     grossIncome,
+    section179: 0,
+    businessIncome: grossIncome,
     agi,
     selfEmploymentTax: 0,
     seTaxDeduction: 0,
@@ -97,14 +110,17 @@ export function calculateW2Employee(grossIncome) {
   };
 }
 
-export function calculateSCorp(grossIncome, salaryPercent = 60, adminCost = 2000) {
-  const salary = Math.min(grossIncome * (salaryPercent / 100), Math.max(0, grossIncome - adminCost));
+export function calculateSCorp(grossIncome, salaryPercent = 60, adminCost = 2000, section179Input = 0) {
+  const section179 = applySection179(grossIncome, section179Input);
+  const businessIncome = grossIncome - section179;
+
+  const salary = Math.min(businessIncome * (salaryPercent / 100), Math.max(0, businessIncome - adminCost));
 
   const payroll = calculatePayrollTax(salary);
 
   // Employer payroll tax + admin are business expenses
   const businessExpenses = payroll.employerTotal + adminCost;
-  const distribution = Math.max(0, grossIncome - salary - businessExpenses);
+  const distribution = Math.max(0, businessIncome - salary - businessExpenses);
 
   // Personal income = salary + distribution
   const personalIncome = salary + distribution;
@@ -122,7 +138,7 @@ export function calculateSCorp(grossIncome, salaryPercent = 60, adminCost = 2000
 
   // Total tax includes both employer and employee payroll, income taxes, and admin
   const totalTax = payroll.total + federalIncomeTax + caTax.total + adminCost;
-  const takeHomePay = grossIncome - totalTax;
+  const takeHomePay = grossIncome - section179 - totalTax;
 
   const quarterlyPayments = calculateQuarterlyPayments(
     federalIncomeTax,
@@ -133,6 +149,8 @@ export function calculateSCorp(grossIncome, salaryPercent = 60, adminCost = 2000
   return {
     label: 'S-Corporation',
     grossIncome,
+    section179,
+    businessIncome,
     salary,
     distribution,
     agi,

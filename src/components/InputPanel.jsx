@@ -1,8 +1,9 @@
 import { formatCurrency } from '../utils/formatters';
+import { SECTION_179_LIMIT } from '../tax/constants';
 import './InputPanel.css';
 
 export default function InputPanel({ inputs, onChange }) {
-  const { hourlyRate, hoursPerWeek, weeksPerYear, sCorpSalaryPercent, sCorpAdminCost } = inputs;
+  const { hourlyRate, hoursPerWeek, weeksPerYear, sCorpSalaryPercent, sCorpAdminCost, section179 } = inputs;
   const grossIncome = hourlyRate * hoursPerWeek * weeksPerYear;
 
   const handleChange = (field) => (e) => {
@@ -58,6 +59,34 @@ export default function InputPanel({ inputs, onChange }) {
         <div className="input-group gross-income">
           <label>Annual Gross Income</label>
           <div className="gross-income-value">{formatCurrency(grossIncome)}</div>
+        </div>
+      </div>
+
+      <div className="input-divider" />
+
+      <h3 className="input-section-title">Business Deductions</h3>
+
+      <div className="input-grid">
+        <div className="input-group">
+          <label htmlFor="section179">
+            Section 179 Equipment Expenses
+          </label>
+          <div className="input-with-prefix">
+            <span className="input-prefix">$</span>
+            <input
+              id="section179"
+              type="number"
+              min="0"
+              max={SECTION_179_LIMIT}
+              step="1000"
+              value={section179 || ''}
+              onChange={handleChange('section179')}
+              placeholder="0"
+            />
+          </div>
+          <span className="input-hint">
+            2026 limit: {formatCurrency(SECTION_179_LIMIT)} (OBBBA). Applies to self-employed only.
+          </span>
         </div>
       </div>
 

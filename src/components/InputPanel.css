@@ -116,6 +116,14 @@
   color: var(--color-text-muted);
 }
 
+.input-hint {
+  display: block;
+  font-size: 0.6875rem;
+  color: var(--color-text-muted);
+  margin-top: 0.25rem;
+  line-height: 1.4;
+}
+
 @media (max-width: 600px) {
   .input-grid {
     grid-template-columns: 1fr 1fr;

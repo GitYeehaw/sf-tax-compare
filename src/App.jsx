@@ -16,6 +16,7 @@ export default function App() {
     weeksPerYear: 52,
     sCorpSalaryPercent: 60,
     sCorpAdminCost: 2000,
+    section179: 0,
   });
 
   const { grossIncome, results } = useMemo(

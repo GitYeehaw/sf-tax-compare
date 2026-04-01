@@ -6,6 +6,8 @@ export default function ComparisonTable({ results }) {
 
   const rows = [
     { label: 'Gross Income', key: 'grossIncome', type: 'currency' },
+    { label: 'Section 179 Deduction', key: 'section179', type: 'currency-negative', hide: (r) => !r.section179 },
+    { label: 'Business Income', key: 'businessIncome', type: 'currency', hide: (r) => !r.section179 },
     { label: 'SE Tax / Payroll Tax', getValue: (r) => r.selfEmploymentTax || r.payrollTax, type: 'currency', className: 'tax-row' },
     { label: 'SE Tax Deduction', key: 'seTaxDeduction', type: 'currency-negative', hide: (r) => !r.seTaxDeduction },
     { label: 'Adjusted Gross Income', key: 'agi', type: 'currency' },
