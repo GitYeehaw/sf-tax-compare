@@ -5,6 +5,7 @@ export default function BarChart({ results }) {
   if (!results || results.length === 0) return null;
 
   const segments = [
+    { key: 'section179', label: 'Section 179', className: 'seg-179' },
     { key: 'federalIncomeTax', label: 'Federal Income Tax', className: 'seg-federal' },
     { key: 'californiaTotal', label: 'CA State Tax', className: 'seg-state' },
     { key: (r) => r.selfEmploymentTax || r.payrollTax, label: 'SE / Payroll Tax', className: 'seg-se' },
@@ -42,7 +43,11 @@ export default function BarChart({ results }) {
         ))}
       </div>
       <div className="bar-legend">
-        {segments.map((seg) => (
+        {segments.filter((seg) => {
+          if (seg.key === 'section179') return results.some((r) => r.section179 > 0);
+          if (seg.key === 'adminCosts') return results.some((r) => r.adminCosts > 0);
+          return true;
+        }).map((seg) => (
           <div key={seg.label} className="legend-item">
             <div className={`legend-dot ${seg.className}`} />
             <span>{seg.label}</span>

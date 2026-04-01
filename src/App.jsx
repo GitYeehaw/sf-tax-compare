@@ -28,9 +28,9 @@ export default function App() {
     <div className="app">
       <header className="app-header">
         <div className="header-content">
-          <h1>SF Self-Employment Tax Calculator</h1>
+          <h1>Self-Employment Tax Calculator</h1>
           <p className="header-subtitle">
-            Compare income tax across business structures &mdash; San Francisco, CA &middot; 2026 Tax Year
+            Compare income tax across business structures &mdash; California &middot; 2026 Tax Year
           </p>
         </div>
       </header>
