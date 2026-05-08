@@ -59,4 +59,28 @@ describe('calculateQBIDeduction', () => {
   it('returns 0 above phase-out end when QBI < $1,000', () => {
     expect(calculateQBIDeduction(500, 300000)).toBe(0);
   });
+
+  it('applies $400 floor at low taxable income when 20% deduction is below $400', () => {
+    // QBI = $1,000 → fullDeduction = $200, but floor raises it to $400
+    expect(calculateQBIDeduction(1000, 50000)).toBe(400);
+  });
+
+  it('applies $400 floor exactly at the $1,000 QBI threshold', () => {
+    // QBI = $1,000 (boundary), well above phase-out → deduction = 0, floor → $400
+    expect(calculateQBIDeduction(1000, 300000)).toBe(400);
+  });
+
+  it('does NOT apply floor one dollar below QBI threshold', () => {
+    // QBI = $999 → no floor
+    expect(calculateQBIDeduction(999, 300000)).toBe(0);
+  });
+
+  it('returns 0 above phase-out end when QBI is exactly at $999 (one below threshold)', () => {
+    expect(calculateQBIDeduction(999, 276775)).toBe(0);
+  });
+
+  it('returns full deduction (no floor) when 20% exceeds $400', () => {
+    // QBI = $5,000 below phase-out → 20% = $1,000, no floor needed
+    expect(calculateQBIDeduction(5000, 50000)).toBeCloseTo(1000, 2);
+  });
 });

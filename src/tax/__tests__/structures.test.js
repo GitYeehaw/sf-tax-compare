@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { calculateSoleProprietorship, calculateLLC, calculateSCorp, calculateW2Employee } from '../structures.js';
+import { SECTION_179_LIMIT } from '../constants.js';
 
 describe('calculateSoleProprietorship', () => {
   it('returns correct structure for $100K income', () => {
@@ -148,5 +149,81 @@ describe('calculateW2Employee', () => {
     const expectedAdditionalMedicare = (300000 - 200000) * 0.009;
     const baseFica = Math.min(300000, 184500) * 0.062 + 300000 * 0.0145;
     expect(result.payrollTax).toBeCloseTo(baseFica + expectedAdditionalMedicare, 0);
+  });
+});
+
+describe('Section 179 handling', () => {
+  it('reduces business income by Section 179 amount in sole prop', () => {
+    const result = calculateSoleProprietorship(300000, 50000);
+    expect(result.section179).toBe(50000);
+    expect(result.businessIncome).toBe(250000);
+  });
+
+  it('reduces SE tax when Section 179 reduces business income', () => {
+    const without = calculateSoleProprietorship(300000, 0);
+    const withDeduction = calculateSoleProprietorship(300000, 50000);
+    expect(withDeduction.selfEmploymentTax).toBeLessThan(without.selfEmploymentTax);
+    expect(withDeduction.totalTax).toBeLessThan(without.totalTax);
+  });
+
+  it('clamps Section 179 to gross income (cannot create negative business income)', () => {
+    const result = calculateSoleProprietorship(100000, 200000);
+    expect(result.section179).toBe(100000);
+    expect(result.businessIncome).toBe(0);
+    expect(result.selfEmploymentTax).toBe(0);
+    expect(result.federalIncomeTax).toBe(0);
+    expect(result.californiaTotal).toBe(0);
+    expect(result.totalTax).toBe(0);
+    expect(result.takeHomePay).toBe(0);
+  });
+
+  it('clamps Section 179 to the IRS limit', () => {
+    const grossIncome = SECTION_179_LIMIT * 4;
+    const result = calculateSoleProprietorship(grossIncome, SECTION_179_LIMIT * 2);
+    expect(result.section179).toBe(SECTION_179_LIMIT);
+    expect(result.businessIncome).toBe(grossIncome - SECTION_179_LIMIT);
+  });
+
+  it('treats negative Section 179 input as zero', () => {
+    const result = calculateSoleProprietorship(100000, -5000);
+    expect(result.section179).toBe(0);
+    expect(result.businessIncome).toBe(100000);
+  });
+
+  it('zero Section 179 produces same result as omitting the parameter', () => {
+    const a = calculateSoleProprietorship(150000, 0);
+    const b = calculateSoleProprietorship(150000);
+    expect(a.totalTax).toBe(b.totalTax);
+    expect(a.takeHomePay).toBe(b.takeHomePay);
+  });
+
+  it('LLC applies Section 179 identically to sole prop', () => {
+    const sp = calculateSoleProprietorship(300000, 50000);
+    const llc = calculateLLC(300000, 50000);
+    expect(llc.section179).toBe(sp.section179);
+    expect(llc.businessIncome).toBe(sp.businessIncome);
+    expect(llc.totalTax).toBe(sp.totalTax);
+  });
+
+  it('S-Corp applies Section 179 to business income before salary split', () => {
+    const result = calculateSCorp(300000, 60, 2000, 50000);
+    expect(result.section179).toBe(50000);
+    expect(result.businessIncome).toBe(250000);
+    // Salary + distribution + employer payroll + admin should reconstruct business income
+    const reconstructed = result.salary + result.distribution + result.payrollEmployer + result.adminCosts;
+    expect(reconstructed).toBeCloseTo(250000, 0);
+  });
+
+  it('S-Corp clamps Section 179 to gross income', () => {
+    const result = calculateSCorp(100000, 60, 2000, 200000);
+    expect(result.section179).toBe(100000);
+    expect(result.businessIncome).toBe(0);
+  });
+
+  it('take-home pay accounts for Section 179 spending', () => {
+    // Section 179 reduces taxes but the cash was spent on equipment.
+    // takeHomePay = grossIncome - section179 - totalTax
+    const result = calculateSoleProprietorship(300000, 50000);
+    expect(result.takeHomePay).toBeCloseTo(300000 - 50000 - result.totalTax, 2);
   });
 });

@@ -66,4 +66,42 @@ describe('calculateFederalIncomeTax', () => {
     // Total = $214,957.25
     expect(tax).toBeCloseTo(214957.25, 0);
   });
+
+  // Boundary tests: at exactly bracket.min, the higher bracket should NOT be applied
+  // (loop breaks via `taxableIncome <= bracket.min`).
+  it('calculates tax at exactly $105,700 boundary (top of 22% bracket)', () => {
+    // 10%: $1,240
+    // 12%: $4,560
+    // 22%: ($105,700 - $50,400) * 0.22 = $12,166
+    // Total = $17,966
+    expect(calculateFederalIncomeTax(105700)).toBeCloseTo(17966, 2);
+  });
+
+  it('calculates tax at exactly $201,775 boundary (top of 24% bracket)', () => {
+    // Through 22%: $17,966
+    // 24%: ($201,775 - $105,700) * 0.24 = $23,058
+    // Total = $41,024
+    expect(calculateFederalIncomeTax(201775)).toBeCloseTo(41024, 2);
+  });
+
+  it('calculates tax at exactly $256,225 boundary (top of 32% bracket)', () => {
+    // Through 24%: $41,024
+    // 32%: ($256,225 - $201,775) * 0.32 = $17,424
+    // Total = $58,448
+    expect(calculateFederalIncomeTax(256225)).toBeCloseTo(58448, 2);
+  });
+
+  it('calculates tax at exactly $640,600 boundary (top of 35% bracket)', () => {
+    // Through 32%: $58,448
+    // 35%: ($640,600 - $256,225) * 0.35 = $134,531.25
+    // Total = $192,979.25
+    expect(calculateFederalIncomeTax(640600)).toBeCloseTo(192979.25, 2);
+  });
+
+  it('one cent above a boundary uses the higher bracket', () => {
+    // At $105,700.01 we cross into the 24% bracket for one cent
+    const atBoundary = calculateFederalIncomeTax(105700);
+    const justAbove = calculateFederalIncomeTax(105700.01);
+    expect(justAbove - atBoundary).toBeCloseTo(0.01 * 0.24, 4);
+  });
 });

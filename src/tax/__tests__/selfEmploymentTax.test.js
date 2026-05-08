@@ -57,6 +57,27 @@ describe('calculateSelfEmploymentTax', () => {
     const result = calculateSelfEmploymentTax(150000);
     expect(result.deductibleHalf).toBeCloseTo(result.total / 2, 2);
   });
+
+  it('does not apply additional Medicare just below $200K SE base', () => {
+    // netEarnings * 0.9235 = 199,000 → netEarnings ≈ 215,484
+    const result = calculateSelfEmploymentTax(215000);
+    expect(result.seBase).toBeLessThan(200000);
+    expect(result.additionalMedicare).toBe(0);
+  });
+
+  it('applies additional Medicare just above $200K SE base', () => {
+    // netEarnings = 220,000 → seBase = 203,170 → additional Medicare = 28.53
+    const result = calculateSelfEmploymentTax(220000);
+    expect(result.seBase).toBeGreaterThan(200000);
+    expect(result.additionalMedicare).toBeCloseTo((result.seBase - 200000) * 0.009, 4);
+  });
+
+  it('caps Social Security at exactly the wage base when SE base equals wage base', () => {
+    // netEarnings such that seBase = SS_WAGE_BASE = 184,500
+    // netEarnings = 184500 / 0.9235
+    const result = calculateSelfEmploymentTax(184500 / 0.9235);
+    expect(result.socialSecurity).toBeCloseTo(184500 * 0.124, 2);
+  });
 });
 
 describe('calculatePayrollTax', () => {
