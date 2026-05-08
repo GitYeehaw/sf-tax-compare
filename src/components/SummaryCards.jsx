@@ -17,6 +17,10 @@ export default function SummaryCards({ results }) {
           <div className="card-sublabel">Annual Take-Home</div>
           <div className="card-stats">
             <div className="card-stat">
+              <span className="stat-label">AGI</span>
+              <span className="stat-value">{formatCurrency(r.agi)}</span>
+            </div>
+            <div className="card-stat">
               <span className="stat-label">Total Tax</span>
               <span className="stat-value">{formatCurrency(r.totalTax)}</span>
             </div>
